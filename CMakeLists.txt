@@ -37,12 +37,12 @@ ELSE()
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
 
-option(BUILD_ROS_NODE "Build ROS node" ON)
+option(BUILD_ROS_NODE "Build ROS node" OFF)
 if(BUILD_ROS_NODE)
   ADD_DEFINITIONS(-DBUILD_ROS_NODE)
 endif(BUILD_ROS_NODE)
 
-option(BUILD_TESTS "Build test programs" ON)
+option(BUILD_TESTS "Build test programs" OFF)
 if(BUILD_TESTS)
   ADD_DEFINITIONS(-DRMD_BUILD_TESTS)
 endif(BUILD_TESTS)
@@ -102,14 +102,19 @@ list(APPEND SOURCE_FILES
 )
 
 CUDA_ADD_LIBRARY(
-    rpg_open_remode_cuda
+    rpg_open_remode_cuda SHARED
     ${CU_SOURCE_FILES}
 )
 
 ADD_LIBRARY(
-    rpg_open_remode
+    rpg_open_remode SHARED
     ${SOURCE_FILES}
 )
+INSTALL(DIRECTORY include/rmd DESTINATION ${CMAKE_INSTALL_PREFIX}/include/remode FILES_MATCHING PATTERN "*.cuh" )
+INSTALL(DIRECTORY include/rmd DESTINATION ${CMAKE_INSTALL_PREFIX}/include/remode FILES_MATCHING PATTERN "*.h" )
+INSTALL(DIRECTORY include/cuda_toolkit DESTINATION ${CMAKE_INSTALL_PREFIX}/include/remode FILES_MATCHING PATTERN "*.h" )
+INSTALL(TARGETS rpg_open_remode DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+INSTALL(TARGETS rpg_open_remode_cuda DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 
 target_link_libraries(
     rpg_open_remode
@@ -141,18 +146,18 @@ target_link_libraries(
 )
 endif(BUILD_ROS_NODE)
 
-## Test on dataset
-add_executable(
-    dataset_main
-    test/dataset_main.cpp
-    test/dataset.cpp
-)
+# ## Test on dataset
+# add_executable(
+#     dataset_main
+#     test/dataset_main.cpp
+#     test/dataset.cpp
+# )
 
-target_link_libraries(
-    dataset_main
-    rpg_open_remode
-    rpg_open_remode_cuda
-)
+# target_link_libraries(
+#     dataset_main
+#     rpg_open_remode
+#     rpg_open_remode_cuda
+# )
 
 # GTest
 if(BUILD_TESTS)
